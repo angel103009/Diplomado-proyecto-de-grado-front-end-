@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diplomado Virtual - Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="login-container">
+    <form id="loginForm" class="login-form">
+      <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+  <img src="https://www.ibero.edu.co/sites/default/files/styles/video_popup_1920_630/public/2023-01/Video-universidad-IBERO-rompe-barreras.jpg.webp?itok=YRIIe_wk" 
+       alt="IBERO" 
+       style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+</div>
+
+      <h2>Bienvenido</h2>
+      <input type="text" id="usuario" placeholder="Usuario" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit">Ingresar</button>
+      <p id="errorMsg" class="error"></p>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const u = document.getElementById("usuario").value;
+      const p = document.getElementById("password").value;
+      if (u === "admin" && p === "1234") {
+        window.location.href = "dashboard.html";
+      } else {
+        document.getElementById("errorMsg").innerText = "Usuario o contraseña incorrectos";
+      }
+    });
+  </script>
+</body>
+</html>
+
+

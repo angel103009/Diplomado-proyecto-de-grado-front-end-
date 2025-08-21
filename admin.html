@@ -1,0 +1,45 @@
+const express = require("express");
+const multer = require("multer");
+const cors = require("cors");
+const fs = require("fs");
+
+const app = express();
+const PORT = 3000;
+
+// Configuración de subida
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = "uploads/";
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath);
+    }
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+const upload = multer({ storage: storage });
+
+app.use(cors());
+app.use(express.static("uploads"));
+
+// Ruta para subir archivo
+app.post("/upload", upload.single("archivo"), (req, res) => {
+  res.json({ message: "✅ Archivo subido correctamente", file: req.file });
+});
+
+// Ruta para listar archivos
+app.get("/list", (req, res) => {
+  fs.readdir("uploads", (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: "No se pudieron listar los archivos" });
+    }
+    res.json({ archivos: files });
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+
