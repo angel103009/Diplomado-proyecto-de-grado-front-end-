@@ -27,7 +27,6 @@
   </footer>
 
   <script>
-    // === API BASE con overrides ===
     const params = new URLSearchParams(window.location.search);
     const actividad = params.get("actividad");
     const apiOverride = params.get("api");
@@ -49,14 +48,10 @@
           body: formData
         });
 
-        if (!res.ok) {
-          const txt = await res.text();
-          throw new Error(`HTTP ${res.status} - ${txt}`);
-        }
-
         const data = await res.json();
-        document.getElementById("mensaje").innerText =
-          data.message || "✅ Archivo enviado correctamente";
+        if (!res.ok) throw new Error(data.message);
+
+        document.getElementById("mensaje").innerText = data.message;
       } catch (err) {
         console.error("Error al subir:", err);
         document.getElementById("mensaje").innerText = "❌ Error al subir el archivo";
