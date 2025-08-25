@@ -1,59 +1,125 @@
+// script.js
 document.addEventListener("DOMContentLoaded", () => {
-  // ====== Lógica para acordeón en dashboard ======
-  const botonesModulo = document.querySelectorAll(".modulo-btn");
+  // === Detectar en qué página estamos ===
+  const path = window.location.pathname;
 
-  botonesModulo.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const content = btn.nextElementSibling;
-      const isOpen = content.style.maxHeight;
+  // ================= LOGIN =================
+  if (path.includes("index.html")) {
+    const loginForm = document.getElementById("loginForm");
+    const errorMsg = document.getElementById("errorMsg");
 
-      // Cerrar todos antes de abrir uno
-      document.querySelectorAll(".modulo-content").forEach(c => {
-        c.style.maxHeight = null;
-        c.classList.remove("open");
-      });
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const u = document.getElementById("usuario").value;
+      const p = document.getElementById("password").value;
 
-      if (!isOpen) {
-        content.style.maxHeight = content.scrollHeight + "px";
-        content.classList.add("open");
+      // Simulación básica de login
+      if (u === "admin" && p === "1234") {
+        window.location.href = "dashboard.html";
+      } else {
+        errorMsg.innerText = "Usuario o contraseña incorrectos";
       }
     });
-  });
+  }
 
-  // ====== Lógica de subida de archivos (actividad.html) ======
-  const form = document.getElementById("uploadForm");
-  const fileInput = document.getElementById("archivo");
-  const statusDiv = document.getElementById("status") || document.getElementById("mensaje");
+  // ================= ACTIVIDAD =================
+  if (path.includes("actividad.html")) {
+    const params = new URLSearchParams(window.location.search);
+    const actividad = params.get("actividad");
+    const apiOverride = params.get("api");
+    const API_BASE =
+      apiOverride ||
+      (location.hostname.includes("localhost")
+        ? "http://localhost:3000"
+        : "https://diplomado-backend1.onrender.com");
 
-  if (form) {
+    if (actividad) {
+      document.getElementById("actividad-title").innerText =
+        "Entrega de Actividad " + actividad;
+      document.getElementById("actividadInput").value = actividad;
+    }
+
+    const form = document.getElementById("uploadForm");
+    const mensaje = document.getElementById("mensaje");
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const file = fileInput.files[0];
-      if (!file) {
-        statusDiv.textContent = "❌ Por favor selecciona un archivo.";
-        return;
-      }
-
       const formData = new FormData(form);
 
       try {
-        const response = await fetch("http://localhost:3000/upload", {
+        const res = await fetch(`${API_BASE}/upload`, {
           method: "POST",
-          body: formData
+          body: formData,
         });
 
-        if (response.ok) {
-          const result = await response.json();
-          statusDiv.textContent = result.message || "✅ Archivo enviado correctamente.";
-        } else {
-          const error = await response.json();
-          statusDiv.textContent = `❌ Error: ${error.message || "No se pudo enviar el archivo"}`;
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`HTTP ${res.status} - ${txt}`);
         }
+
+        const data = await res.json();
+        mensaje.innerText = data.message || "✅ Archivo enviado correctamente";
       } catch (err) {
-        console.error("Error en la petición:", err);
-        statusDiv.textContent = "❌ Error de conexión con el servidor.";
+        console.error("Error al subir:", err);
+        mensaje.innerText = "❌ Error al subir el archivo";
       }
+    });
+  }
+
+  // ================= ADMIN =================
+  if (path.includes("admin.html")) {
+    const params = new URLSearchParams(window.location.search);
+    const apiOverride = params.get("api");
+    const API_BASE =
+      apiOverride ||
+      (location.hostname.includes("localhost")
+        ? "http://localhost:3000"
+        : "https://diplomado-backend1.onrender.com");
+
+    async function cargarArchivos() {
+      try {
+        const res = await fetch(`${API_BASE}/list`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const lista = document.getElementById("lista-archivos");
+        lista.innerHTML = "";
+
+        data.archivos.forEach((item) => {
+          const url = item.url || `${API_BASE}/uploads/${item.name || item}`;
+          const nombre = item.name || item;
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${nombre}</a>`;
+          lista.appendChild(li);
+        });
+      } catch (err) {
+        console.error("Error cargando lista:", err);
+        document.getElementById("lista-archivos").innerHTML =
+          "<li>❌ No se pudieron cargar los archivos</li>";
+      }
+    }
+
+    cargarArchivos();
+  }
+
+  // ================= DASHBOARD =================
+  if (path.includes("dashboard.html")) {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        window.location.href = "index.html";
+      });
+    }
+
+    // Acordeón de módulos
+    const modulos = document.querySelectorAll(".modulo-btn");
+    modulos.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        btn.classList.toggle("activo");
+        const content = btn.nextElementSibling;
+        content.style.display =
+          content.style.display === "block" ? "none" : "block";
+      });
     });
   }
 });

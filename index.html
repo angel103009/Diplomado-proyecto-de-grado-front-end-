@@ -23,17 +23,7 @@
     </form>
   </div>
 
-  <script>
-    document.getElementById("loginForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const u = document.getElementById("usuario").value;
-      const p = document.getElementById("password").value;
-      if (u === "admin" && p === "1234") {
-        window.location.href = "dashboard.html";
-      } else {
-        document.getElementById("errorMsg").innerText = "Usuario o contraseña incorrectos";
-      }
-    });
-  </script>
+  <!-- Ahora solo enlazamos el script general -->
+  <script src="script.js"></script>
 </body>
 </html>
