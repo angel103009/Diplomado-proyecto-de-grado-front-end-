@@ -27,7 +27,6 @@
   </footer>
 
   <script>
-    // Capturar el número de actividad desde la URL
     const params = new URLSearchParams(window.location.search);
     const actividad = params.get("actividad");
     if (actividad) {
@@ -35,12 +34,11 @@
       document.getElementById("actividadInput").value = actividad;
     }
 
-    // Enviar archivo al servidor
     document.getElementById("uploadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
 
-      const res = await fetch("http://localhost:3000/upload", {
+      const res = await fetch("https://diplomado-backend1.onrender.com/upload", {
         method: "POST",
         body: formData,
       });
@@ -51,4 +49,3 @@
   </script>
 </body>
 </html>
-

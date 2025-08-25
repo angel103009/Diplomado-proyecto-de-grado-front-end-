@@ -1,45 +1,40 @@
-const express = require("express");
-const multer = require("multer");
-const cors = require("cors");
-const fs = require("fs");
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Administración de Entregas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+  <header class="dashboard-header">
+    <h1>Administración de Entregas</h1>
+    <button onclick="window.location.href='dashboard.html'" class="logout-btn">Volver</button>
+  </header>
 
-const app = express();
-const PORT = 3000;
+  <main class="dashboard-content">
+    <h2>Archivos entregados</h2>
+    <ul id="lista-archivos"></ul>
+  </main>
 
-// Configuración de subida
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadPath = "uploads/";
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath);
+  <footer class="dashboard-footer">
+    <p>© 2025 Universidad IBERO</p>
+  </footer>
+
+  <script>
+    async function cargarArchivos() {
+      const res = await fetch("https://diplomado-backend1.onrender.com/list");
+      const data = await res.json();
+
+      const lista = document.getElementById("lista-archivos");
+      lista.innerHTML = "";
+      data.archivos.forEach(archivo => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="https://diplomado-backend1.onrender.com/${archivo}" target="_blank">${archivo}</a>`;
+        lista.appendChild(li);
+      });
     }
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
-});
-const upload = multer({ storage: storage });
-
-app.use(cors());
-app.use(express.static("uploads"));
-
-// Ruta para subir archivo
-app.post("/upload", upload.single("archivo"), (req, res) => {
-  res.json({ message: "✅ Archivo subido correctamente", file: req.file });
-});
-
-// Ruta para listar archivos
-app.get("/list", (req, res) => {
-  fs.readdir("uploads", (err, files) => {
-    if (err) {
-      return res.status(500).json({ error: "No se pudieron listar los archivos" });
-    }
-    res.json({ archivos: files });
-  });
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+    cargarArchivos();
+  </script>
+</body>
+</html>
 

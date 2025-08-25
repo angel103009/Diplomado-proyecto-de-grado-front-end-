@@ -19,13 +19,10 @@ document.querySelectorAll(".modulo-btn").forEach((btn) => {
       content.style.maxHeight = content.scrollHeight + "px";
       content.classList.add("open");
     }
-
   });
-// Botón de cerrar sesión
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  // Aquí puedes limpiar datos si tuvieras sessionStorage/localStorage
-  // sessionStorage.clear();
-  window.location.href = "index.html"; // Redirige al login
 });
 
+// Botón de cerrar sesión
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  window.location.href = "index.html"; // Redirige al login
 });
