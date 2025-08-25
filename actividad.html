@@ -27,8 +27,13 @@
   </footer>
 
   <script>
+    // === API BASE con overrides ===
     const params = new URLSearchParams(window.location.search);
     const actividad = params.get("actividad");
+    const apiOverride = params.get("api");
+    const API_BASE = apiOverride
+      || (location.hostname.includes("localhost") ? "http://localhost:3000" : "https://diplomado-backend1.onrender.com");
+
     if (actividad) {
       document.getElementById("actividad-title").innerText = "Entrega de Actividad " + actividad;
       document.getElementById("actividadInput").value = actividad;
@@ -38,13 +43,25 @@
       e.preventDefault();
       const formData = new FormData(e.target);
 
-      const res = await fetch("https://diplomado-backend1.onrender.com/upload", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const res = await fetch(`${API_BASE}/upload`, {
+          method: "POST",
+          body: formData
+        });
 
-      const data = await res.json();
-      document.getElementById("mensaje").innerText = data.message;
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`HTTP ${res.status} - ${txt}`);
+        }
+
+        const data = await res.json();
+        const url = data?.file?.url;
+        document.getElementById("mensaje").innerHTML =
+          `✅ Archivo subido correctamente.${url ? ` <a href="${url}" target="_blank">Ver archivo</a>` : ""}`;
+      } catch (err) {
+        console.error("Error al subir:", err);
+        document.getElementById("mensaje").innerText = "❌ Error al subir el archivo";
+      }
     });
   </script>
 </body>
