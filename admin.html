@@ -20,7 +20,35 @@
     <p>© 2025 Universidad IBERO</p>
   </footer>
 
-  <!-- Aquí ya no está el script inline -->
-  <script src="script.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const apiOverride = params.get("api");
+    const API_BASE = apiOverride
+      || (location.hostname.includes("localhost") ? "http://localhost:3000" : "https://diplomado-backend1.onrender.com");
+
+    async function cargarArchivos() {
+      try {
+        const res = await fetch(`${API_BASE}/list`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const lista = document.getElementById("lista-archivos");
+        lista.innerHTML = "";
+
+        data.archivos.forEach(item => {
+          const url = item.url || `${API_BASE}/uploads/${item.name || item}`;
+          const nombre = item.name || item;
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${nombre}</a>`;
+          lista.appendChild(li);
+        });
+      } catch (err) {
+        console.error("Error cargando lista:", err);
+        document.getElementById("lista-archivos").innerHTML =
+          "<li>❌ No se pudieron cargar los archivos</li>";
+      }
+    }
+    cargarArchivos();
+  </script>
 </body>
 </html>
