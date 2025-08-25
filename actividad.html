@@ -55,9 +55,8 @@
         }
 
         const data = await res.json();
-        const url = data?.file?.url;
-        document.getElementById("mensaje").innerHTML =
-          `✅ Archivo subido correctamente.${url ? ` <a href="${url}" target="_blank">Ver archivo</a>` : ""}`;
+        document.getElementById("mensaje").innerText =
+          data.message || "✅ Archivo enviado correctamente";
       } catch (err) {
         console.error("Error al subir:", err);
         document.getElementById("mensaje").innerText = "❌ Error al subir el archivo";
